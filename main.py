@@ -1,21 +1,24 @@
+import streamlit as st
 from google import genai
-from google.genai import types
 
 
-client = genai.Client(api_key="YOUR_API_KEY")
+st.title("Мой первый AI-чат")
 
-chat = client.chats.create(
-    model = "gemini-3.5-flash",
-    config = types.GenerateContentConfig(
-        system_instructions = "Ты - строгий, но добрый учитель. Отвечай кратко."
-    )
-)
+if "chat" not in st.session_state:
+    st.session_state.client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
+    st.session_state.chat = st.session_state.client.chats.create(model="gemini-3.5-flash")
+    st.session_state.messages = []
 
-print("Чат запущен. Напиши 'выход', чтобы закончить.\n")
+for msg in st.session_state.messages:
+    with st.chat_message(msg["role"]):
+        st.markdown(msg["text"])
 
-while True:
-    user_input = input("Ты: ")
-    if user_input.lower() == "выход":
-        break
-    user_input = chat.send_message(user_input)
-    print("Gemini:", user_input.text, "\n")
+if user_input := st.chat_input("Напиши сообщение..."):
+    st.session_state.messages.append({"role": "user", "text": user_input})
+    with st.chat_message("user"):
+        st.markdown(user_input)
+
+    response = st.session_state.chat.send_message(user_input)
+    st.session_state.messages.append({"role": "assistant", "text": response.text})
+    with st.chat_message("assistant"):
+        st.markdown(response.text)
