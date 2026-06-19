@@ -61,10 +61,31 @@ def find_relevant_chunks(question, top_k=3):
     return [chunks[i] for i in best]
 
 
-# Проверка
-question = "Какой опыт работы у Баева Н.В.?"
-relevant = find_relevant_chunks(question)
+# Получаем готовый ответ на основе найденных кусочков
+def answer_question(question):
+    # Находим  подходящие кусочки
+    relevant = find_relevant_chunks(question)
+    context = "\n\n".join(relevant)
 
-for i, ch in enumerate(relevant, 1):
-    print(f"--- Подходящий кусочек {i}: ---")
-    print(ch[:300], "...\n")
+    # Строим промпт: даем контекст и строгую инструкцию
+    prompt = f"""Ты - помощник, отвечающий на вопросы по документу.
+Используй только инфомацию из контекста ниже.
+Если ответа в контексте нет - честно скажи: "В документе этого нет."
+
+Контекст:
+{context}
+
+Вопрос: {question}
+"""
+    
+    # Отдаем модели
+    response = client.models.generate_content(
+        model = "gemini-3.5-flash",
+        contents = prompt,
+    )
+    return response.text
+
+# Проверка
+question = "Какой рост у Баева Н.В.?"
+print("Вопрос:", question)
+print("\nОтвет:", answer_question(question))
