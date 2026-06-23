@@ -2,4 +2,4 @@
 __pycache__/
 *.pyc
 .streamlit
-knowledge_db
+knowledge_db/
