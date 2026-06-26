@@ -3,3 +3,7 @@ __pycache__/
 *.pyc
 .streamlit
 knowledge_db/
+kb.py
+main.py
+pdf_bot.py
+rag.py
